@@ -176,6 +176,76 @@
     background:var(--card-line);
   }
 
+  .section-title-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:0 0 14px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--card-line);
+  }
+  .section-title-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .section-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+  }
+  button.small{ padding:6px 12px; font-size:12.5px; }
+  #btnMultiSelect.active{ border-color:var(--stamp); color:var(--stamp); }
+
+  /* ---------- multi-select ---------- */
+  .card-select{
+    display:flex;
+    align-items:center;
+    flex-shrink:0;
+  }
+  .card-select input[type=checkbox],
+  .video-row .row-checkbox{
+    width:16px;
+    height:16px;
+    accent-color:var(--stamp);
+    cursor:pointer;
+  }
+  .card.selected{ border-color:var(--stamp); box-shadow:0 0 0 1px var(--stamp) inset; }
+  .video-row.selected{ background:rgba(217,154,60,.1); }
+
+  /* ---------- rename ---------- */
+  .card-edit-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    flex:1;
+    min-width:200px;
+  }
+  .card-edit-row input[type=text]{ flex:1; min-width:160px; }
+
+  /* ---------- per-video delete / drag ---------- */
+  .video-row{ position:relative; }
+  .video-row .delete-video-btn{
+    background:none;
+    border:none;
+    color:var(--ink-dim);
+    font-size:15px;
+    line-height:1;
+    padding:4px 6px;
+    cursor:pointer;
+    flex-shrink:0;
+    margin-left:auto;
+  }
+  .video-row .delete-video-btn:hover{ color:var(--danger); }
+  .video-row.dragging-video{ opacity:.35; }
+  .video-list.video-drop-target{ outline:1px dashed var(--stamp); outline-offset:-2px; }
+
   /* ---------- playlist card catalog ---------- */
   .catalog{
     display:flex;
@@ -233,6 +303,21 @@
     line-height:1.3;
     margin:0 0 4px;
     padding-right:60px;
+    cursor:text;
+  }
+  .card-title.editing{
+    padding-right:0;
+  }
+  .card-title-input{
+    width:100%;
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.3;
+    background:var(--surface-2);
+    border:1px solid var(--stamp);
+    color:var(--ink);
+    padding:4px 7px;
+    border-radius:var(--radius);
   }
   .card-meta{
     font-family:var(--mono);
@@ -395,6 +480,117 @@
   body.player-mode main{
     padding-top:24px;
   }
+  /* ---------- single video -> custom playlist modal ---------- */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(10,9,6,.72);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:100;
+  }
+  .modal-overlay.active{ display:flex; }
+  .modal-box{
+    background:var(--surface);
+    border:1px solid var(--card-line);
+    border-radius:var(--radius);
+    width:100%;
+    max-width:440px;
+    max-height:86vh;
+    overflow-y:auto;
+    padding:22px 22px 18px;
+  }
+  .modal-title{
+    font-family:var(--serif);
+    font-size:18px;
+    margin:0 0 14px;
+  }
+  .modal-video-preview{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    background:var(--surface-2);
+    border:1px solid var(--card-line);
+    border-radius:var(--radius);
+    padding:8px;
+    margin-bottom:18px;
+  }
+  .modal-video-preview img{
+    width:100px;
+    aspect-ratio:16/9;
+    object-fit:cover;
+    border-radius:2px;
+    flex-shrink:0;
+    background:var(--surface);
+  }
+  .modal-video-preview .mv-title{
+    font-size:13px;
+    line-height:1.35;
+  }
+  .modal-video-preview .mv-channel{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-dim);
+    margin-top:3px;
+  }
+  .modal-section{ margin-bottom:16px; }
+  .modal-custom-list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-height:180px;
+    overflow-y:auto;
+  }
+  .modal-custom-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border:1px solid var(--card-line);
+    border-radius:var(--radius);
+    padding:8px 10px;
+    font-size:13px;
+  }
+  .modal-custom-row .mcr-name{
+    font-family:var(--serif);
+  }
+  .modal-custom-row .mcr-count{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-dim);
+  }
+  .modal-empty{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+  .modal-new-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .modal-new-row input{ flex:1; min-width:140px; }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    border-top:1px solid var(--card-line);
+    padding-top:14px;
+    margin-top:4px;
+  }
+  .custom-tag{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--sage);
+    border:1px solid var(--sage);
+    border-radius:20px;
+    padding:1px 7px;
+    margin-left:8px;
+    letter-spacing:.03em;
+  }
+
   footer.note{
     font-family:var(--mono);
     font-size:11px;
@@ -440,8 +636,15 @@
       <button class="primary" id="btnAddPlaylist">新增 Playlist</button>
     </div>
 
-    <h2 class="section-title">典藏清單
-      <button id="btnRefreshAll" class="ghost" style="margin-left:auto;">重新整理典藏清單</button>
+    <h2 class="section-title-row">
+      <span class="section-title-left">
+        <span class="section-label">典藏清單</span>
+        <button id="btnRefreshAll" class="ghost">重新整理典藏清單</button>
+      </span>
+      <span class="section-title-left">
+        <button id="btnMultiSelect" class="ghost small">多選</button>
+        <button id="btnDeleteSelected" class="ghost small danger" style="display:none;">刪除選取項目</button>
+      </span>
     </h2>
     <div id="catalog" class="catalog"></div>
   </div>
@@ -470,6 +673,31 @@
 
   <footer class="note">API Key 僅存在於本次瀏覽的記憶體中，關閉或重新整理頁面後即消失。Playlist 資料保存於本機瀏覽器 localStorage。</footer>
 </main>
+
+<!-- SINGLE VIDEO -> ADD TO CUSTOM PLAYLIST MODAL -->
+<div class="modal-overlay" id="videoModal">
+  <div class="modal-box">
+    <h3 class="modal-title">新增單一部影片</h3>
+    <div class="modal-video-preview" id="modalVideoPreview"></div>
+
+    <div class="modal-section">
+      <div class="section-title">加入現有自訂清單</div>
+      <div id="modalCustomList" class="modal-custom-list"></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="section-title">或建立新的自訂清單</div>
+      <div class="modal-new-row">
+        <input type="text" id="modalNewListName" placeholder="輸入新自訂清單名稱">
+        <button class="primary" id="modalCreateBtn">建立並加入</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="ghost" id="modalCancelBtn">取消</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -504,7 +732,19 @@
     btnNext: $("#btnNext"),
     mainEl: $("#mainEl"),
     playerPlaylist: $("#playerPlaylist"),
+    videoModal: $("#videoModal"),
+    modalVideoPreview: $("#modalVideoPreview"),
+    modalCustomList: $("#modalCustomList"),
+    modalNewListName: $("#modalNewListName"),
+    modalCreateBtn: $("#modalCreateBtn"),
+    modalCancelBtn: $("#modalCancelBtn"),
+    btnMultiSelect: $("#btnMultiSelect"),
+    btnDeleteSelected: $("#btnDeleteSelected"),
   };
+  let pendingVideoMeta = null;
+  let multiSelectMode = false;
+  let selectedPlaylistIds = new Set();
+  let selectedVideoKeys = new Set(); // `${playlistId}::${videoId}`
 
   /* ================= API key handling (memory only) ================= */
 
@@ -646,6 +886,17 @@
     return { title: s.title, thumbnail: (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default) || {}).url || "" };
   }
 
+  async function fetchVideoMeta(videoId){
+    const data = await apiFetch("videos", { part: "snippet", id: videoId });
+    if(!data || !data.items || !data.items.length){
+      showMsg("找不到該影片，可能已被刪除或設為私人。", "error");
+      return null;
+    }
+    const sn = data.items[0].snippet;
+    const thumb = (sn.thumbnails && (sn.thumbnails.medium || sn.thumbnails.default) || {}).url || "";
+    return { videoId: videoId, title: sn.title || "", channel: sn.channelTitle || "", thumbnail: thumb };
+  }
+
   async function fetchAllPlaylistItems(playlistId){
     let items = [];
     let pageToken = "";
@@ -693,6 +944,7 @@
 
     for(let i = 0; i < playlists.length; i++){
       const p = playlists[i];
+      if(p.isCustom) continue; // custom playlists have no real YouTube playlist to refresh from
       btn.textContent = "重新整理中 (" + (i+1) + "/" + playlists.length + ")…";
 
       const meta = await fetchPlaylistMeta(p.id);
@@ -721,8 +973,22 @@
     }
     const raw = el.playlistInput.value;
     const playlistId = parsePlaylistId(raw);
+
     if(!playlistId){
-      showMsg("無法解析 Playlist ID，請確認網址或 ID 是否正確。", "error");
+      // not a playlist link/id — see if it's a single video instead
+      const videoId = parseVideoId(raw);
+      if(!videoId){
+        showMsg("無法解析 Playlist 或影片網址，請確認網址或 ID 是否正確。", "error");
+        return;
+      }
+      el.btnAddPlaylist.disabled = true;
+      el.btnAddPlaylist.textContent = "取得中…";
+      const videoMeta = await fetchVideoMeta(videoId);
+      el.btnAddPlaylist.disabled = false;
+      el.btnAddPlaylist.textContent = "新增 Playlist";
+      if(!videoMeta) return;
+      el.playlistInput.value = "";
+      openVideoModal(videoMeta);
       return;
     }
 
@@ -742,7 +1008,7 @@
     if(!videos) return;
 
     const existingIdx = playlists.findIndex(p => p.id === playlistId);
-    const record = { id: playlistId, title: meta.title, thumbnail: meta.thumbnail, videos: videos, expanded: false };
+    const record = { id: playlistId, title: meta.title, thumbnail: meta.thumbnail, videos: videos, expanded: false, isCustom: false };
     if(existingIdx >= 0) playlists[existingIdx] = record;
     else playlists.unshift(record);
 
@@ -750,6 +1016,131 @@
     el.playlistInput.value = "";
     showMsg('已取得「' + meta.title + '」共 ' + videos.length + ' 部影片。', "info");
     renderCatalog();
+  }
+
+  /* ================= single video -> custom playlist modal ================= */
+
+  function openVideoModal(videoMeta){
+    pendingVideoMeta = videoMeta;
+    el.modalVideoPreview.innerHTML =
+      (videoMeta.thumbnail ? '<img src="' + attr(videoMeta.thumbnail) + '" alt="">' : '<img alt="">') +
+      '<div><div class="mv-title">' + escapeHtml(videoMeta.title) + '</div><div class="mv-channel">' + escapeHtml(videoMeta.channel) + '</div></div>';
+    el.modalNewListName.value = "";
+    renderModalCustomList();
+    el.videoModal.classList.add("active");
+  }
+
+  function closeVideoModal(cancelled){
+    el.videoModal.classList.remove("active");
+    pendingVideoMeta = null;
+    if(cancelled) showMsg("已取消新增。", "info");
+  }
+
+  function renderModalCustomList(){
+    const customPlaylists = playlists.filter(p => p.isCustom);
+    if(!customPlaylists.length){
+      el.modalCustomList.innerHTML = '<div class="modal-empty">目前沒有自訂清單，請在下方建立新的自訂清單。</div>';
+      return;
+    }
+    el.modalCustomList.innerHTML = "";
+    customPlaylists.forEach(p => {
+      const row = document.createElement("div");
+      row.className = "modal-custom-row";
+      row.innerHTML =
+        '<span class="mcr-name">' + escapeHtml(p.title) + '<span class="mcr-count"> · ' + p.videos.length + ' 部</span></span>' +
+        '<button class="mcr-add">加入</button>';
+      row.querySelector(".mcr-add").addEventListener("click", () => {
+        if(!pendingVideoMeta) return;
+        addVideoToCustomPlaylist(p.id, pendingVideoMeta);
+        closeVideoModal(false);
+      });
+      el.modalCustomList.appendChild(row);
+    });
+  }
+
+  function addVideoToCustomPlaylist(playlistId, videoMeta){
+    const p = playlists.find(pl => pl.id === playlistId);
+    if(!p) return;
+    if(p.videos.some(v => v.videoId === videoMeta.videoId)){
+      showMsg('此影片已存在於「' + p.title + '」中。', "info");
+    } else {
+      p.videos.push({ videoId: videoMeta.videoId, title: videoMeta.title, channel: videoMeta.channel, thumbnail: videoMeta.thumbnail, position: p.videos.length });
+      savePlaylists();
+      showMsg('已新增至「' + p.title + '」。', "info");
+    }
+    renderCatalog();
+  }
+
+  function createCustomPlaylistWithVideo(name, videoMeta){
+    const record = {
+      id: "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      title: name,
+      thumbnail: "",
+      videos: [{ videoId: videoMeta.videoId, title: videoMeta.title, channel: videoMeta.channel, thumbnail: videoMeta.thumbnail, position: 0 }],
+      expanded: false,
+      isCustom: true
+    };
+    playlists.unshift(record);
+    savePlaylists();
+    showMsg('已建立自訂清單「' + name + '」並加入影片。', "info");
+    renderCatalog();
+  }
+
+  el.modalCreateBtn.addEventListener("click", () => {
+    const name = el.modalNewListName.value.trim();
+    if(!name){
+      showMsg("請輸入新自訂清單名稱。", "error");
+      return;
+    }
+    if(!pendingVideoMeta) return;
+    createCustomPlaylistWithVideo(name, pendingVideoMeta);
+    closeVideoModal(false);
+  });
+
+  el.modalCancelBtn.addEventListener("click", () => closeVideoModal(true));
+  el.videoModal.addEventListener("click", (e) => {
+    if(e.target === el.videoModal) closeVideoModal(true);
+  });
+
+  function startInlineRename(p, titleEl){
+    if(titleEl.classList.contains("editing")) return;
+    const originalName = p.title;
+    titleEl.classList.add("editing");
+    titleEl.innerHTML = '';
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "card-title-input";
+    input.value = originalName;
+    titleEl.appendChild(input);
+
+    let finished = false;
+    const finish = (commit) => {
+      if(finished) return;
+      finished = true;
+      document.removeEventListener("mousedown", outsideHandler, true);
+      input.removeEventListener("keydown", keyHandler);
+      const newName = input.value.trim();
+      if(commit && newName){
+        p.title = newName;
+        savePlaylists();
+      } else {
+        p.title = originalName;
+      }
+      renderCatalog();
+    };
+    const outsideHandler = (e) => {
+      if(!titleEl.contains(e.target)) finish(true);
+    };
+    const keyHandler = (e) => {
+      if(e.key === "Enter") finish(true);
+      if(e.key === "Escape") finish(false);
+    };
+
+    input.addEventListener("keydown", keyHandler);
+    document.addEventListener("mousedown", outsideHandler, true);
+    input.focus();
+    input.select();
   }
 
   /* ================= catalog rendering ================= */
@@ -762,17 +1153,22 @@
     el.catalog.innerHTML = "";
     playlists.forEach(p => {
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card" + (selectedPlaylistIds.has(p.id) ? " selected" : "");
 
-      card.draggable = true;
+      card.draggable = !multiSelectMode;
       card.dataset.id = p.id;
+
+      const selectHtml = multiSelectMode
+        ? '<span class="card-select"><input type="checkbox" class="playlistCheckbox"' + (selectedPlaylistIds.has(p.id) ? " checked" : "") + '></span>'
+        : '<span class="drag-handle" title="拖曳以調整順序">⋮⋮</span>';
+
       card.innerHTML =
         '<div class="card-tab">' + p.videos.length + ' 部</div>' +
         '<div class="card-body">' +
-          '<span class="drag-handle" title="拖曳以調整順序">⋮⋮</span>' +
+          selectHtml +
           '<div class="card-info">' +
-            '<h3 class="card-title">' + escapeHtml(p.title) + '</h3>' +
-            '<div class="card-meta">Playlist ID: ' + escapeHtml(p.id) + '</div>' +
+            '<h3 class="card-title">' + escapeHtml(p.title) + (p.isCustom ? '<span class="custom-tag">自訂清單</span>' : '') + '</h3>' +
+            '<div class="card-meta">' + (p.isCustom ? '本機自訂清單，不會被「重新整理典藏清單」覆蓋' : 'Playlist ID: ' + escapeHtml(p.id)) + '</div>' +
           '</div>' +
           '<div class="card-actions">' +
             '<button class="expandBtn">' + (p.expanded ? "收合" : "展開") + '</button>' +
@@ -784,7 +1180,11 @@
       const expandBtn = card.querySelector(".expandBtn");
       const deleteBtn = card.querySelector(".deleteBtn");
       const actionsRow = card.querySelector(".card-actions");
+      const cardInfo = card.querySelector(".card-info");
+      const cardTitle = card.querySelector(".card-title");
+
       card.querySelector(".playBtn").addEventListener("click", () => openPlayer(p.id, 0));
+
       deleteBtn.addEventListener("click", () => {
         actionsRow.innerHTML =
           '<span class="confirm-text">確定要刪除「' + escapeHtml(p.title) + '」嗎？</span>' +
@@ -793,6 +1193,13 @@
         actionsRow.querySelector(".confirmDeleteBtn").addEventListener("click", () => deletePlaylist(p.id));
         actionsRow.querySelector(".cancelDeleteBtn").addEventListener("click", () => renderCatalog());
       });
+
+      cardTitle.addEventListener("click", (e) => {
+        if(multiSelectMode) return;
+        e.stopPropagation();
+        startInlineRename(p, cardTitle);
+      });
+
       expandBtn.addEventListener("click", () => {
         p.expanded = !p.expanded;
         expandBtn.textContent = p.expanded ? "收合" : "展開";
@@ -804,17 +1211,46 @@
         }
       });
 
+      if(multiSelectMode){
+        const checkbox = card.querySelector(".playlistCheckbox");
+        checkbox.addEventListener("change", (e) => {
+          if(e.target.checked){
+            selectedPlaylistIds.add(p.id);
+            // 勾選自訂清單時，同步勾選該清單底下的所有影片。
+            if(p.isCustom){
+              p.videos.forEach(v => selectedVideoKeys.add(p.id + "::" + v.videoId));
+            }
+          } else {
+            selectedPlaylistIds.delete(p.id);
+            if(p.isCustom){
+              p.videos.forEach(v => selectedVideoKeys.delete(p.id + "::" + v.videoId));
+            }
+          }
+          card.classList.toggle("selected", e.target.checked);
+          // 展開的影片列需要立即反映同步後的勾選狀態。
+          if(p.expanded){
+            const existingList = card.querySelector(".video-list");
+            if(existingList) existingList.replaceWith(buildVideoList(p));
+          }
+        });
+        card.addEventListener("click", (e) => {
+          if(e.target.closest("button, input, .drag-handle, .card-title-input")) return;
+          checkbox.checked = !checkbox.checked;
+          checkbox.dispatchEvent(new Event("change", { bubbles:true }));
+        });
+      }
+
       if(p.expanded){
         card.appendChild(buildVideoList(p));
       }
 
-      attachDragHandlers(card);
+      attachDragHandlers(card, p);
       el.catalog.appendChild(card);
     });
   }
 
-  /* ---- drag & drop reordering ---- */
-  function attachDragHandlers(card){
+  /* ---- drag & drop: card reordering + moving a video between custom playlists ---- */
+  function attachDragHandlers(card, p){
     card.addEventListener("dragstart", (e) => {
       card.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
@@ -835,6 +1271,19 @@
     card.addEventListener("drop", (e) => {
       e.preventDefault();
       card.classList.remove("drag-over");
+
+      const videoData = e.dataTransfer.getData("application/x-video-move");
+      if(videoData){
+        if(!p.isCustom){
+          showMsg("影片只能移動到自訂清單。", "error");
+          return;
+        }
+        let payload;
+        try{ payload = JSON.parse(videoData); }catch(err){ return; }
+        moveVideoToPlaylist(payload.fromPlaylistId, payload.videoId, p.id);
+        return;
+      }
+
       const draggedId = e.dataTransfer.getData("text/plain");
       const targetId = card.dataset.id;
       if(!draggedId || draggedId === targetId) return;
@@ -852,27 +1301,189 @@
     renderCatalog();
   }
 
+  function moveVideoToPlaylist(fromPlaylistId, videoId, toPlaylistId){
+    if(fromPlaylistId === toPlaylistId) return;
+    const fromP = playlists.find(pl => pl.id === fromPlaylistId);
+    const toP = playlists.find(pl => pl.id === toPlaylistId);
+    if(!fromP || !toP || !fromP.isCustom || !toP.isCustom) return;
+
+    const idx = fromP.videos.findIndex(v => v.videoId === videoId);
+    if(idx === -1) return;
+    const [video] = fromP.videos.splice(idx, 1);
+
+    if(toP.videos.some(v => v.videoId === videoId)){
+      showMsg('此影片已存在於「' + toP.title + '」中。', "info");
+    } else {
+      video.position = toP.videos.length;
+      toP.videos.push(video);
+      showMsg('已將影片移動至「' + toP.title + '」。', "info");
+    }
+    savePlaylists();
+    renderCatalog();
+  }
+
   function buildVideoList(p){
     const list = document.createElement("div");
     list.className = "video-list";
     p.videos.forEach((v, idx) => {
+      const key = p.id + "::" + v.videoId;
       const row = document.createElement("div");
-      row.className = "video-row";
+      row.className = "video-row" + (multiSelectMode && selectedVideoKeys.has(key) ? " selected" : "");
+
+      const checkboxHtml = (multiSelectMode && p.isCustom)
+        ? '<input type="checkbox" class="row-checkbox"' + (selectedVideoKeys.has(key) ? " checked" : "") + '>'
+        : '<span class="vn">' + (idx+1) + '</span>';
+
+      const deleteBtnHtml = (!multiSelectMode && p.isCustom)
+        ? '<button class="delete-video-btn" title="刪除此影片">✕</button>'
+        : '';
+
       row.innerHTML =
-        '<span class="vn">' + (idx+1) + '</span>' +
+        checkboxHtml +
         (v.thumbnail ? '<img src="' + attr(v.thumbnail) + '" alt="">' : '<img alt="">') +
-        '<div class="vi"><div class="vt">' + escapeHtml(v.title) + '</div><div class="vc">' + escapeHtml(v.channel) + '</div></div>';
-      row.addEventListener("click", () => openPlayer(p.id, idx));
+        '<div class="vi"><div class="vt">' + escapeHtml(v.title) + '</div><div class="vc">' + escapeHtml(v.channel) + '</div></div>' +
+        deleteBtnHtml;
+
+      if(multiSelectMode && p.isCustom){
+        const checkbox = row.querySelector(".row-checkbox");
+        checkbox.addEventListener("change", (e) => {
+          if(e.target.checked) selectedVideoKeys.add(key);
+          else selectedVideoKeys.delete(key);
+          row.classList.toggle("selected", e.target.checked);
+        });
+        row.addEventListener("click", (e) => {
+          // 影片列屬於清單卡片內部，但不能讓點擊冒泡成「勾選整個清單」。
+          e.stopPropagation();
+          if(e.target.closest("input")) return;
+          checkbox.checked = !checkbox.checked;
+          checkbox.dispatchEvent(new Event("change", { bubbles:true }));
+        });
+        checkbox.addEventListener("click", (e) => {
+          // 直接點 checkbox 也不應觸發外層 card 的多選切換。
+          e.stopPropagation();
+        });
+      } else if(!multiSelectMode){
+        row.addEventListener("click", (e) => {
+          if(e.target.closest(".delete-video-btn")) return;
+          openPlayer(p.id, idx);
+        });
+        if(p.isCustom){
+          row.draggable = true;
+          row.addEventListener("dragstart", (e) => {
+            e.stopPropagation();
+            row.classList.add("dragging-video");
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("application/x-video-move", JSON.stringify({ fromPlaylistId: p.id, videoId: v.videoId }));
+          });
+          row.addEventListener("dragend", (e) => {
+            e.stopPropagation();
+            row.classList.remove("dragging-video");
+          });
+          const delBtn = row.querySelector(".delete-video-btn");
+          delBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            deleteVideoFromPlaylist(p.id, v.videoId);
+          });
+        }
+      }
+
       list.appendChild(row);
     });
     return list;
   }
 
-  function deletePlaylist(playlistId){
-    playlists = playlists.filter(p => p.id !== playlistId);
+  function deleteVideoFromPlaylist(playlistId, videoId){
+    const p = playlists.find(pl => pl.id === playlistId);
+    if(!p) return;
+    p.videos = p.videos.filter(v => v.videoId !== videoId);
     savePlaylists();
     renderCatalog();
   }
+
+  function deletePlaylist(playlistId){
+    playlists = playlists.filter(p => p.id !== playlistId);
+    selectedPlaylistIds.delete(playlistId);
+    savePlaylists();
+    renderCatalog();
+  }
+
+  /* ================= multi-select mode ================= */
+
+  function bindMultiSelectButtons(){
+    el.btnMultiSelect.addEventListener("click", () => {
+      multiSelectMode = !multiSelectMode;
+      selectedPlaylistIds.clear();
+      selectedVideoKeys.clear();
+      el.btnMultiSelect.textContent = multiSelectMode ? "取消多選" : "多選";
+      el.btnMultiSelect.classList.toggle("active", multiSelectMode);
+      el.btnDeleteSelected.style.display = multiSelectMode ? "" : "none";
+      el.btnDeleteSelected.textContent = "刪除選取項目";
+      renderCatalog();
+    });
+    el.btnDeleteSelected.addEventListener("click", handleDeleteSelectedClick);
+  }
+
+  function handleDeleteSelectedClick(){
+    const playlistCount = selectedPlaylistIds.size;
+    const videoCount = Array.from(selectedVideoKeys).filter(key => {
+      const pid = key.split("::")[0];
+      return !selectedPlaylistIds.has(pid); // avoid double-counting videos whose whole playlist is also selected
+    }).length;
+
+    if(playlistCount === 0 && videoCount === 0){
+      showMsg("尚未選取任何項目。", "error");
+      return;
+    }
+
+    const row = $(".section-title-left");
+    row.innerHTML =
+      '<span class="section-label">典藏清單</span>' +
+      '<span class="confirm-text">確定要刪除 ' + playlistCount + ' 個清單、' + videoCount + ' 部影片嗎？</span>' +
+      '<button id="btnBulkConfirm" class="danger small">確認刪除</button>' +
+      '<button id="btnBulkCancel" class="ghost small">取消</button>';
+
+    $("#btnBulkConfirm").addEventListener("click", performBulkDelete);
+    $("#btnBulkCancel").addEventListener("click", restoreMultiSelectToolbar);
+  }
+
+  function performBulkDelete(){
+    // remove whole selected playlists
+    playlists = playlists.filter(p => !selectedPlaylistIds.has(p.id));
+
+    // remove individually selected videos from playlists that are still around
+    selectedVideoKeys.forEach(key => {
+      const [pid, vid] = key.split("::");
+      if(selectedPlaylistIds.has(pid)) return; // playlist already removed entirely
+      const p = playlists.find(pl => pl.id === pid);
+      if(p) p.videos = p.videos.filter(v => v.videoId !== vid);
+    });
+
+    savePlaylists();
+    selectedPlaylistIds.clear();
+    selectedVideoKeys.clear();
+    multiSelectMode = false;
+
+    showMsg("已刪除選取的項目。", "info");
+    restoreMultiSelectToolbar();
+  }
+
+  function restoreMultiSelectToolbar(){
+    const rows = document.querySelectorAll(".section-title-left");
+    if(rows.length < 2) return;
+    rows[0].innerHTML =
+      '<span class="section-label">典藏清單</span>' +
+      '<button id="btnRefreshAll" class="ghost">重新整理典藏清單</button>';
+    rows[1].innerHTML =
+      '<button id="btnMultiSelect" class="ghost small">多選</button>' +
+      '<button id="btnDeleteSelected" class="ghost small danger" style="display:none;">刪除選取項目</button>';
+    el.btnMultiSelect = $("#btnMultiSelect");
+    el.btnDeleteSelected = $("#btnDeleteSelected");
+    bindMultiSelectButtons();
+    $("#btnRefreshAll").addEventListener("click", refreshAllPlaylists);
+    renderCatalog();
+  }
+
+  bindMultiSelectButtons();
 
   /* ================= player view ================= */
 
@@ -930,6 +1541,13 @@
     el.playerView.classList.add("active");
     document.body.classList.add("player-mode");
 
+    // 切換到觀看頁面時，將視窗捲到「返回總清單列表」按鈕正下方，
+    // 讓返回按鈕仍位於視線上方，而播放器從按鈕下方開始顯示。
+    requestAnimationFrame(() => {
+      const backBottom = el.btnBack.getBoundingClientRect().bottom + window.scrollY;
+      window.scrollTo({ top: backBottom, left: 0, behavior: "auto" });
+    });
+
     loadYouTubeIframeApi();
     renderNowPlaying();
     createOrLoadPlayer(p.videos[currentIndex].videoId);
@@ -986,7 +1604,17 @@
     el.playerView.classList.remove("active");
     el.catalogView.classList.remove("hidden");
     document.body.classList.remove("player-mode");
-    if(ytPlayerObj && ytPlayerObj.stopVideo) ytPlayerObj.stopVideo();
+
+    // 完整銷毀 YouTube 播放器，避免返回清單後仍在背景播放或持續占用資源。
+    pendingLoad = null;
+    if(ytPlayerObj && typeof ytPlayerObj.destroy === "function") {
+      try{ ytPlayerObj.destroy(); }catch(e){}
+    }
+    ytPlayerObj = null;
+    el.ytPlayer.innerHTML = "";
+    currentPlaylistId = null;
+    currentIndex = 0;
+
     renderCatalog();
   });
 
