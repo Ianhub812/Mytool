@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<title>PDF 閱讀器</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #525659;
+    font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif;
+    overflow: hidden;
+    overscroll-behavior: none;
+    transition: background 0.25s ease;
+  }
+  body.dark-mode { background: #121212; }
+
+  /* ---------- 起始畫面 ---------- */
+  #startScreen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #cfd3d6;
+    text-align: center;
+    padding: 20px;
+    z-index: 5;
+  }
+  #startScreen.hidden { display: none; }
+  #startScreen svg { margin-bottom: 14px; opacity: .6; }
+  #startScreen p { font-size: 14px; margin: 4px 0 20px; }
+
+  .file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 22px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    white-space: nowrap;
+    user-select: none;
+  }
+  input[type="file"] { display: none; }
+
+  #loading {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #cfd3d6;
+    font-size: 14px;
+    z-index: 6;
+    background: #525659;
+  }
+
+  /* ---------- PDF 顯示區 ---------- */
+  #viewerContainer {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+  /* 連續捲動模式：適合寬度，頁面上下相連 */
+  #viewerContainer.mode-continuous #pageWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 40px;
+  }
+  #viewerContainer.mode-continuous .page-item {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  #viewerContainer.mode-continuous .pdf-page-canvas {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+  }
+
+  /* 單頁模式：每頁貼齊視窗，滑動時逐頁吸附 */
+  #viewerContainer.mode-paged {
+    scroll-snap-type: y mandatory;
+  }
+  #viewerContainer.mode-paged #pageWrap {
+    display: flex;
+    flex-direction: column;
+  }
+  #viewerContainer.mode-paged .page-item {
+    width: 100%;
+    height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+  #viewerContainer.mode-paged .pdf-page-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+
+  .pdf-page-canvas {
+    display: block;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    background: #fff;
+    transition: filter 0.25s ease;
+  }
+  body.dark-mode .pdf-page-canvas {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  #pageNumBadge {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 16px) + 16px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: none;
+    z-index: 8;
+    pointer-events: none;
+  }
+
+  /* ---------- 懸浮選單 ---------- */
+  #fabMenu {
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 16px);
+    right: 16px;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .fab-action {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s ease;
+  }
+  #fabMenu.open .fab-action {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .fab-action.active {
+    background: #2563eb;
+  }
+  #fabToggle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  #fabMenu.open #fabToggle {
+    transform: rotate(45deg);
+    background: #444;
+  }
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8b929a" stroke-width="1.5">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <path d="M14 2v6h6"/>
+  </svg>
+  <p>選擇一份 PDF 開始閱讀</p>
+  <label class="file-label" for="fileInput">📂 選擇 PDF</label>
+  <input type="file" id="fileInput" accept="application/pdf">
+</div>
+
+<div id="loading">正在載入 PDF…</div>
+
+<div id="viewerContainer" class="mode-continuous">
+  <div id="pageWrap"></div>
+</div>
+
+<div id="pageNumBadge"></div>
+
+<div id="fabMenu">
+  <button class="fab-action" id="scrollModeBtn" title="捲動模式">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="3" width="16" height="6" rx="1"/>
+      <rect x="4" y="11" width="16" height="6" rx="1"/>
+      <path d="M4 21h16"/>
+    </svg>
+  </button>
+  <button class="fab-action" id="darkModeBtn" title="深色模式">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
+  <button class="fab-action" id="reopenBtn" title="開啟另一份 PDF">📂</button>
+  <button id="fabToggle" title="選單">+</button>
+</div>
+<input type="file" id="fileInputReopen" accept="application/pdf" style="display:none;">
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const fileInput = document.getElementById('fileInput');
+const fileInputReopen = document.getElementById('fileInputReopen');
+const startScreen = document.getElementById('startScreen');
+const loading = document.getElementById('loading');
+const viewerContainer = document.getElementById('viewerContainer');
+const pageWrap = document.getElementById('pageWrap');
+const fabMenu = document.getElementById('fabMenu');
+const fabToggle = document.getElementById('fabToggle');
+const reopenBtn = document.getElementById('reopenBtn');
+const darkModeBtn = document.getElementById('darkModeBtn');
+const scrollModeBtn = document.getElementById('scrollModeBtn');
+const pageNumBadge = document.getElementById('pageNumBadge');
+
+let pdfDoc = null;
+let badgeTimer = null;
+let isContinuousMode = true; // 預設：連續捲動 + 適合寬度
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) loadPdf(e.target.files[0]);
+});
+fileInputReopen.addEventListener('change', (e) => {
+  if (e.target.files[0]) loadPdf(e.target.files[0]);
+});
+
+// 懸浮選單開關
+fabToggle.addEventListener('click', () => {
+  fabMenu.classList.toggle('open');
+});
+
+reopenBtn.addEventListener('click', () => {
+  fabMenu.classList.remove('open');
+  fileInputReopen.click();
+});
+
+// 深色模式
+darkModeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  darkModeBtn.innerHTML = isDark
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <circle cx="12" cy="12" r="4"/>
+         <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+       </svg>`
+    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+       </svg>`;
+  fabMenu.classList.remove('open');
+});
+
+// 捲動模式切換：連續捲動(適合寬度) <-> 單頁模式(逐頁吸附)
+scrollModeBtn.addEventListener('click', () => {
+  isContinuousMode = !isContinuousMode;
+  applyScrollMode();
+  fabMenu.classList.remove('open');
+});
+
+function applyScrollMode() {
+  if (isContinuousMode) {
+    viewerContainer.classList.add('mode-continuous');
+    viewerContainer.classList.remove('mode-paged');
+    scrollModeBtn.classList.add('active');
+  } else {
+    viewerContainer.classList.add('mode-paged');
+    viewerContainer.classList.remove('mode-continuous');
+    scrollModeBtn.classList.remove('active');
+  }
+}
+applyScrollMode();
+
+async function loadPdf(file) {
+  if (file.type !== 'application/pdf') {
+    alert('請選擇 PDF 檔案');
+    return;
+  }
+
+  startScreen.classList.add('hidden');
+  viewerContainer.style.display = 'none';
+  fabMenu.style.display = 'none';
+  fabMenu.classList.remove('open');
+  pageNumBadge.style.display = 'none';
+  loading.style.display = 'flex';
+  pageWrap.innerHTML = '';
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    pdfDoc = await loadingTask.promise;
+
+    await renderAllPages();
+
+    loading.style.display = 'none';
+    viewerContainer.style.display = 'block';
+    fabMenu.style.display = 'flex';
+    setupPageTracking();
+  } catch (err) {
+    console.error(err);
+    loading.style.display = 'none';
+    startScreen.classList.remove('hidden');
+    alert('無法讀取此 PDF，檔案可能已損毀或加密。');
+  }
+}
+
+async function renderAllPages() {
+  const containerWidth = window.innerWidth - 20;
+  const dpr = window.devicePixelRatio || 1;
+
+  for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+    const page = await pdfDoc.getPage(pageNum);
+    const baseViewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(containerWidth / baseViewport.width, 2.2) * dpr;
+    const viewport = page.getViewport({ scale });
+
+    const pageItem = document.createElement('div');
+    pageItem.className = 'page-item';
+    pageItem.dataset.pageNumber = pageNum;
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'pdf-page-canvas';
+    canvas.dataset.pageNumber = pageNum;
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    canvas.style.aspectRatio = (viewport.width / viewport.height).toString();
+
+    pageItem.appendChild(canvas);
+    pageWrap.appendChild(pageItem);
+
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  }
+}
+
+function setupPageTracking() {
+  updateBadge(1);
+
+  viewerContainer.addEventListener('scroll', () => {
+    clearTimeout(badgeTimer);
+    const items = pageWrap.querySelectorAll('.page-item');
+    const containerRect = viewerContainer.getBoundingClientRect();
+    const midpoint = containerRect.top + containerRect.height / 2;
+
+    let current = 1;
+    items.forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top <= midpoint) current = parseInt(el.dataset.pageNumber);
+    });
+    updateBadge(current);
+
+    pageNumBadge.style.display = 'block';
+    badgeTimer = setTimeout(() => { pageNumBadge.style.display = 'none'; }, 1200);
+  }, { passive: true });
+}
+
+function updateBadge(current) {
+  pageNumBadge.textContent = `第 ${current} / ${pdfDoc.numPages} 頁`;
+}
+
+// 防止在最頂端往下拉時瀏覽器觸發「下拉重新整理」
+let touchStartY = 0;
+viewerContainer.addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+viewerContainer.addEventListener('touchmove', (e) => {
+  const touchY = e.touches[0].clientY;
+  const scrollTop = viewerContainer.scrollTop;
+  const isPullingDown = touchY > touchStartY;
+  if (scrollTop <= 0 && isPullingDown) {
+    e.preventDefault();
+  }
+}, { passive: false });
+</script>
+
+</body>
+</html>
